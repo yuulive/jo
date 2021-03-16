@@ -5,14 +5,14 @@
 //! function.
 //!
 //! Different functions can synchronize on different mutexes. That's why a
-//! static mutex reference must be passed to the `nonparallel` annotation.
+//! static mutex reference must be passed to the `jo` annotation.
 //!
 //! ## Usage
 //!
 //! ```rust
 //! use std::sync::Mutex;
 //! use lazy_static::lazy_static;
-//! use nonparallel::nonparallel;
+//! use jo::jo;
 //!
 //! // Create two locks
 //! lazy_static! { static ref MUT_A: Mutex<()> = Mutex::new(()); }
@@ -20,17 +20,17 @@
 //!
 //! // Mutually exclude parallel runs of functions using those two locks
 //!
-//! #[nonparallel(MUT_A)]
+//! #[jo(MUT_A)]
 //! fn function_a1() {
 //!     // This will not run in parallel to function_a2
 //! }
 //!
-//! #[nonparallel(MUT_A)]
+//! #[jo(MUT_A)]
 //! fn function_a2() {
 //!     // This will not run in parallel to function_a1
 //! }
 //!
-//! #[nonparallel(MUT_B)]
+//! #[jo(MUT_B)]
 //! fn function_b() {
 //!     // This may run in parallel to function_a*
 //! }
@@ -44,21 +44,21 @@ use syn::parse::{Parse, ParseStream};
 use syn::{parse, parse_macro_input, Ident, Stmt, ItemFn};
 
 #[derive(Debug)]
-struct Nonparallel {
+struct Jo {
     ident: Ident,
 }
 
-impl Parse for Nonparallel {
+impl Parse for Jo {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
         let ident = input.parse::<Ident>()?;
-        Ok(Nonparallel { ident })
+        Ok(Jo { ident })
     }
 }
 
 #[proc_macro_attribute]
-pub fn nonparallel(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn jo(attr: TokenStream, item: TokenStream) -> TokenStream {
     // Parse macro attributes
-    let Nonparallel { ident } = parse_macro_input!(attr);
+    let Jo { ident } = parse_macro_input!(attr);
 
     // Parse function
     let mut function: ItemFn = parse(item).expect("Could not parse ItemFn");

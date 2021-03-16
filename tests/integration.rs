@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-use nonparallel::nonparallel;
+use jo::jo;
 use lazy_static::lazy_static;
 
 lazy_static! { static ref MUT_A: Mutex<()> = Mutex::new(()); }
@@ -9,21 +9,21 @@ lazy_static! { static ref MUT_B: Mutex<()> = Mutex::new(()); }
 
 const COUNT: usize = 1_000;
 
-#[nonparallel(MUT_A)]
+#[jo(MUT_A)]
 fn append1(vec: Arc<Mutex<Vec<u32>>>) {
     for _ in 0..COUNT {
         vec.lock().unwrap().push(1);
     }
 }
 
-#[nonparallel(MUT_A)]
+#[jo(MUT_A)]
 fn append2(vec: Arc<Mutex<Vec<u32>>>) {
     for _ in 0..COUNT {
         vec.lock().unwrap().push(2);
     }
 }
 
-#[nonparallel(MUT_A)]
+#[jo(MUT_A)]
 fn append3(vec: Arc<Mutex<Vec<u32>>>) {
     for _ in 0..COUNT {
         vec.lock().unwrap().push(3);
